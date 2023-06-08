@@ -1,5 +1,7 @@
 import argparse
-import gymnasium as gym
+import gym
+import numpy as np
+import matplotlib.pyplot as plt
 from collections import deque
 from CarRacingDQNAgent import CarRacingDQNAgent
 from common_functions import process_state_image
@@ -12,6 +14,12 @@ SKIP_FRAMES = 2
 TRAINING_BATCH_SIZE = 64
 SAVE_TRAINING_FREQUENCY = 25
 UPDATE_TARGET_MODEL_FREQUENCY = 5
+
+episode_values = []
+reward_values = []
+epsilon_values = []
+score_values = []
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
@@ -117,5 +125,44 @@ if __name__ == "__main__":
 
         if e % SAVE_TRAINING_FREQUENCY == 0:
             agent.save("./save/trial_{}.h5".format(e))
+
+        # Append the values to the lists
+        episode_values.append(e)
+        reward_values.append(total_reward)
+        score_values.append(time_frame_counter)
+        epsilon_values.append(agent.epsilon)
+
+        # Convert the lists to numpy arrays
+        episode_values_arr = np.array(episode_values)
+        reward_values_arr = np.array(reward_values)
+        score_values_arr = np.array(score_values)
+        epsilon_values_arr = np.array(epsilon_values)
+
+        # Save the values to text files
+        np.savetxt("episode_values.txt", episode_values_arr, fmt="%d")
+        np.savetxt("reward_values.txt", reward_values_arr, fmt="%f")
+        np.savetxt("score_values.txt", score_values_arr, fmt="%d")
+        np.savetxt("epsilon_values.txt", epsilon_values_arr, fmt="%f")
+
+    # Visualize episode/reward
+    plt.plot(episode_values, reward_values)
+    plt.xlabel("Episode")
+    plt.ylabel("Reward")
+    plt.title("Episode vs Reward")
+    plt.show()
+
+    # Visualize episode/reward
+    plt.plot(episode_values, score_values)
+    plt.xlabel("Episode")
+    plt.ylabel("Score")
+    plt.title("Episode vs Score")
+    plt.show()
+
+     # Visualize episode/reward
+    plt.plot(episode_values, epsilon_values)
+    plt.xlabel("Episode")
+    plt.ylabel("Epsilon")
+    plt.title("Episode vs Epsilon")
+    plt.show()
 
     env.close()
