@@ -4,6 +4,7 @@ from collections import deque
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense
 from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.layers import ReLU
 
 
 class CarRacingDQNAgent:
@@ -51,15 +52,17 @@ class CarRacingDQNAgent:
                 filters=6,
                 kernel_size=(7, 7),
                 strides=3,
-                activation="relu",
                 input_shape=(96, 96, self.frame_stack_num),
             )
         )
+        model.add(ReLU(max_value=6))
         model.add(MaxPooling2D(pool_size=(2, 2)))
-        model.add(Conv2D(filters=12, kernel_size=(4, 4), activation="relu"))
+        model.add(Conv2D(filters=12, kernel_size=(4, 4)))
+        model.add(ReLU(max_value=6))
         model.add(MaxPooling2D(pool_size=(2, 2)))
         model.add(Flatten())
-        model.add(Dense(216, activation="relu"))
+        model.add(Dense(216))
+        model.add(ReLU(max_value=6))
         model.add(Dense(len(self.action_space), activation=None))
         model.compile(
             loss="mean_squared_error",
